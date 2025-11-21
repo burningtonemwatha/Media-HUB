@@ -53,3 +53,37 @@ def login_view(request):
         else:
             form = UserRegistrationForm() # Default HTTP Method is GET
         return render(request, 'accounts/login.html', {'form', form})
+    
+## Logout -> check if our user is logged in - @Login_required
+# If user is logged in then allow this action to run for the user
+
+@login_required
+def logout_view(request):
+    # Use Django inbuilt call
+    logout(request)
+    messages.info(request, f"You have logged out!!")
+    return redirect('accounts:login')
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valida():
+            form.save()
+            messages.success(request, f"Profile saved successfully")
+            return redirect('accounts:profile')
+        else:
+            form = UserProfileForm(instance=request.user)
+
+        return render(request, 'accounts/profile.html', {'form':form})
+    
+class CustomPasswordResetView(PasswordResetView):
+    # Interface change
+    template_name = 'accounts/password_reset.html'
+    email_template_name = 'accounts/password_reset_email.html'
+    success_url = reverse_lazy('accounts:password_reset_complete')
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    # Interface change
+    template_name = 'accounts/password_reset_confirm.html'
+    success_url = reverse_lazy('accounts:password_reset_complete') # This will launch when password is updated
