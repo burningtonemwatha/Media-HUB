@@ -13,7 +13,7 @@ class UserRegistrationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('Username', 'email', 'user_type', 'password1', 'password2') # Simply the form fields my user will fill
+        fields = ('username', 'email', 'user_type', 'password1', 'password2') # Simply the form fields my user will fill
         widgets = {
             'username' : forms.TextInput(attrs={
                 'class' : 'form-control',
