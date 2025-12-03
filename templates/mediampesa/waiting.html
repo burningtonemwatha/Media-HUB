@@ -26,29 +26,32 @@
    <p id="status-message"></p>
 </div>
 <script>
-    const transactionId = "{{ transaction_id }}";
+const transactionId = "{{ transaction_id }}";
+const BASE_URL = "https://miss-catabatic-tortiously.ngrok-free.dev/";
 
-      let checkStatusInterval = setInterval(function () {
-        console.log("Checking transaction status...");
-        fetch(`https://stkpushmpesa.onrender.com/check-status/${transactionId}/`)
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.status === "Success") {
-              clearInterval(checkStatusInterval);
-              window.location.href = "/payment-success/";
-            } else if (data.status === "Failed") {
-              clearInterval(checkStatusInterval);
-              window.location.href = "/payment-failed/";
-            } else if (data.status === "Cancelled") {
-              clearInterval(checkStatusInterval);
-              window.location.href = "/payment-cancelled/";
-            }
-          })
-          .catch((error) => {
-            console.error("Error checking transaction status:", error);
-            alert("Transaction status check failed")
-          });
-      }, 10000);
+let checkStatusInterval = setInterval(function () {
+  console.log("Checking transaction status...");
+  fetch(`${BASE_URL}mediampesa/check-status/${transactionId}/`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(JSON.stringify(data))
+      if (data.status === "Success") {
+        clearInterval(checkStatusInterval);
+        window.location.href = `${BASE_URL}mediampesa/payment-success/`;
+      } else if (data.status === "Failed") {
+        clearInterval(checkStatusInterval);
+        window.location.href = `${BASE_URL}mediampesa/payment-failed/`;
+      } else if (data.status === "Cancelled") {
+        clearInterval(checkStatusInterval);
+        window.location.href = `${BASE_URL}mediampesa/payment-cancelled/`;
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking transaction status:", error);
+      alert("Transaction status check failed");
+    });
+}, 10000);
+
 
 </script>
 

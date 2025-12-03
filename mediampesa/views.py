@@ -25,6 +25,8 @@ PASSKEY = os.getenv('PASSKEY')
 BASE_URL = os.getenv('BASE_URL')
 CONSUMER_KEY = os.getenv('CONSUMER_KEY')
 CONSUMER_SECRET = os.getenv('CONSUMER_SECRET')
+NGROK_URL = os.getenv('NGROK_URL')
+CALLBACK_URL = os.getenv('CALLBACK_URL')
 
 class MpesaPassword:
     @staticmethod  # DECLARING THIS METHOD DOES NOT BELONG TO ANY OBJECT / OR CLASS 
@@ -44,7 +46,7 @@ def generate_access_token():
 
 # index page for transactions  # this gives back the checkout page 
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'mediampesa/index.html')
 
 # this will execute an stk push on request 
 # we exempt a csrf security check for external processes stk push / callback 
@@ -99,7 +101,7 @@ def stk_push(request):
             "PartyA": phone,
             "PartyB": SHORTCODE,
             "PhoneNumber" : phone,
-            "CallBackURL": "https://stkpushmpesa.onrender.com/callback", #  #- response from mpesa based on transaction success or failure  will be sent here 
+            "CallBackURL": f"{CALLBACK_URL}mediampesa/callback/", #  #- response from mpesa based on transaction success or failure  will be sent here 
             "AccountReference": f"Transaction_{transaction.id}",
             "TransactionDesc": "Payment for Services"
         }
@@ -116,14 +118,14 @@ def stk_push(request):
         transaction.description = response_data.get('ResponseDescription', "No Description")
         transaction.save()  ## save transaction to db : at this point for the transaction my user received the STK push i.e popup to enter mpesa pin to complete the pay.
 
-        return redirect('waiting_page', transaction_id=transaction.id)
+        return redirect('mediampesa:waiting_page', transaction_id=transaction.id)
 
     return JsonResponse({'error': "invalid request"}, status=400)
 
 # waiting page 
 def waiting_page(request, transaction_id):
     transaction = Transactions.objects.get(id=transaction_id)
-    return render(request, 'waiting.html',{'transaction_id': transaction_id}) # sharing the current executed transaction to my waiting page 
+    return render(request, 'mediampesa/waiting.html',{'transaction_id': transaction_id}) # sharing the current executed transaction to my waiting page 
 
 # this function maps my callback url that will receive the result body of a transaction/ payment attempt 
 @csrf_exempt
@@ -236,10 +238,10 @@ def check_status(request, transaction_id):
 
 
 def payment_success(request):
-    return render(request,"payment_success.html")
+    return render(request,"mediampesa/payment_success.html")
 
 def payment_failed(request):
-    return render(request,"payment_failed.html")
+    return render(request,"mediampesa/payment_failed.html")
 
 def payment_cancelled(request):
-    return render(request,"payment_cancelled.html")
+    return render(request,"mediampesa/payment_cancelled.html")

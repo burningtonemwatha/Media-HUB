@@ -6,7 +6,7 @@
        <div class="row">
            <div>
                <h1>MediaHub Payment Form</h1>
-               <form action="/stk_push/" method="post" class="form">
+               <form action="{% url 'mediampesa:stk_push' %}" method="post" class="form">
                    {% csrf_token %}
                    <label for="phone">Phone Number:</label>
                    <input
